@@ -1,3 +1,27 @@
+require('packer').startup(function(use)
+  use'wbthomason/packer.nvim'
+  use"rebelot/kanagawa.nvim"
+  use'williamboman/mason.nvim'
+  use'williamboman/mason-lspconfig.nvim'
+  use'neovim/nvim-lspconfig'
+  use {
+    'nvim-treesitter/nvim-treesitter',
+    run = function()
+        local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+        ts_update()
+    end,
+  }
+  use{
+    'nvim-telescope/telescope.nvim', tag='0.1.x',
+    requires={{'nvim-lua/plenary.nvim'}}
+  }
+  use'hrsh7th/cmp-nvim-lsp'
+  use'hrsh7th/cmp-buffer'
+  use'hrsh7th/cmp-path'
+  use'hrsh7th/cmp-cmdline'
+  use'hrsh7th/nvim-cmp'
+end)
+
 vim.cmd('colorscheme kanagawa')
 
 -- Set <space> as the leader key
@@ -196,7 +220,14 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 require("mason").setup()
 require('mason-lspconfig').setup()
 require'lspconfig'.lua_ls.setup({
-  capabilities=capabilities
+  capabilities=capabilities,
+  settings={
+    Lua={
+      diagnostics={
+        globals={"vim"},
+      },
+    },
+  },
 })
 require'lspconfig'.pylsp.setup{
   capabilities=capabilities,
@@ -225,29 +256,6 @@ vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' }
 vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
-return require('packer').startup(function(use)
-  use'wbthomason/packer.nvim'
-  use"rebelot/kanagawa.nvim"
-  use'williamboman/mason.nvim'
-  use'williamboman/mason-lspconfig.nvim'
-  use'neovim/nvim-lspconfig'
-  use {
-    'nvim-treesitter/nvim-treesitter',
-    run = function()
-        local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
-        ts_update()
-    end,
-  }
-  use{
-    'nvim-telescope/telescope.nvim', tag='0.1.x',
-    requires={{'nvim-lua/plenary.nvim'}}
-  }
-  use'hrsh7th/cmp-nvim-lsp'
-  use'hrsh7th/cmp-buffer'
-  use'hrsh7th/cmp-path'
-  use'hrsh7th/cmp-cmdline'
-  use'hrsh7th/nvim-cmp'
-end)
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
