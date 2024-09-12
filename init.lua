@@ -4,6 +4,7 @@ require("packer").startup(function(use)
 	use("williamboman/mason.nvim")
 	use("williamboman/mason-lspconfig.nvim")
 	use("neovim/nvim-lspconfig")
+	use("nvim-lua/plenary.nvim")
 	use({
 		"nvim-treesitter/nvim-treesitter",
 		run = function()
@@ -27,6 +28,11 @@ require("packer").startup(function(use)
 		config = function()
 			require("conform").setup()
 		end,
+	})
+	use({
+		"ThePrimeagen/harpoon",
+		branch = "harpoon2",
+		requires = { { "nvim-lua/plenary.nvim" } },
 	})
 end)
 
@@ -175,17 +181,19 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufAdd", "BufNew", "BufNewFile", "Buf
 require("conform").setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
-		-- Conform will run multiple formatters sequentially
-		python = { "isort", "black" },
-		-- You can customize some of the format options for the filetype (:help conform.format)
-		rust = { "rustfmt", lsp_format = "fallback" },
-		-- Conform will run the first available formatter
-		javascript = { "prettierd", "prettier", stop_after_first = true },
+		python = { "black" },
 	},
 	format_on_save = {
 		timeout_ms = 500,
 		lsp_format = "fallback",
 	},
+})
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = "*",
+	callback = function(args)
+		require("conform").format({ bufnr = args.buf })
+	end,
 })
 
 local cmp = require("cmp")
@@ -280,6 +288,40 @@ vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iag
 vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
+
+local harpoon = require("harpoon")
+
+-- REQUIRED
+harpoon:setup()
+-- REQUIRED
+
+vim.keymap.set("n", "<leader>a", function()
+	harpoon:list():add()
+end)
+vim.keymap.set("n", "<C-e>", function()
+	harpoon.ui:toggle_quick_menu(harpoon:list())
+end)
+
+vim.keymap.set("n", "<C-h>", function()
+	harpoon:list():select(1)
+end)
+vim.keymap.set("n", "<C-t>", function()
+	harpoon:list():select(2)
+end)
+vim.keymap.set("n", "<C-n>", function()
+	harpoon:list():select(3)
+end)
+vim.keymap.set("n", "<C-s>", function()
+	harpoon:list():select(4)
+end)
+
+-- Toggle previous & next buffers stored within Harpoon list
+vim.keymap.set("n", "<C-S-P>", function()
+	harpoon:list():prev()
+end)
+vim.keymap.set("n", "<C-S-N>", function()
+	harpoon:list():next()
+end)
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
