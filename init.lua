@@ -1,42 +1,118 @@
-require("packer").startup(function(use)
-	use("wbthomason/packer.nvim")
-	use("rebelot/kanagawa.nvim")
-	use("williamboman/mason.nvim")
-	use("williamboman/mason-lspconfig.nvim")
-	use("neovim/nvim-lspconfig")
-	use("nvim-lua/plenary.nvim")
-	use({
-		"nvim-treesitter/nvim-treesitter",
-		run = function()
-			local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
-			ts_update()
-		end,
-	})
-	use({
-		"nvim-telescope/telescope.nvim",
-		tag = "0.1.x",
-		requires = { { "nvim-lua/plenary.nvim" } },
-	})
-	use("hrsh7th/cmp-nvim-lsp")
-	use("hrsh7th/cmp-buffer")
-	use("hrsh7th/cmp-path")
-	use("hrsh7th/cmp-cmdline")
-	use("hrsh7th/nvim-cmp")
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+	if vim.v.shell_error ~= 0 then
+		vim.api.nvim_echo({
+			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+			{ out, "WarningMsg" },
+			{ "\nPress any key to exit..." },
+		}, true, {})
+		vim.fn.getchar()
+		os.exit(1)
+	end
+end
+vim.opt.rtp:prepend(lazypath)
 
-	use({
-		"stevearc/conform.nvim",
-		config = function()
-			require("conform").setup()
-		end,
-	})
-	use({
-		"ThePrimeagen/harpoon",
-		branch = "harpoon2",
-		requires = { { "nvim-lua/plenary.nvim" } },
-	})
-end)
+require("lazy").setup({
+	spec = {
+		-- add your plugins here
+		"williamboman/mason.nvim",
+		"williamboman/mason-lspconfig.nvim",
+		"neovim/nvim-lspconfig",
+		"nvim-lua/plenary.nvim",
+		{
+			"nvim-treesitter/nvim-treesitter",
+			build = ":TSUpdate",
+			config = function()
+				local configs = require("nvim-treesitter.configs")
 
-vim.cmd("colorscheme kanagawa")
+				configs.setup({
+					ensure_installed = {
+						"c",
+						"lua",
+						"vim",
+						"vimdoc",
+						"query",
+						"elixir",
+						"heex",
+						"javascript",
+						"html",
+						"go",
+						"python",
+					},
+					sync_install = false,
+					highlight = { enable = true },
+					indent = { enable = true },
+				})
+			end,
+		},
+		{
+			"nvim-telescope/telescope.nvim",
+			branch = "0.1.x",
+			dependencies = { "nvim-lua/plenary.nvim" },
+		},
+		"hrsh7th/cmp-nvim-lsp",
+		"hrsh7th/cmp-buffer",
+		"hrsh7th/cmp-path",
+		"hrsh7th/cmp-cmdline",
+		"hrsh7th/nvim-cmp",
+		"hrsh7th/vim-vsnip",
+		"hrsh7th/cmp-vsnip",
+		{
+			"stevearc/conform.nvim",
+			opts = {},
+		},
+		{
+			"windwp/nvim-autopairs",
+			event = "InsertEnter",
+			config = true,
+			-- use opts = {} for passing setup options
+			-- this is equivalent to setup({}) function
+		},
+	},
+	-- Configure any other settings here. See the documentation for more details.
+	-- colorscheme that will be used when installing plugins.
+	install = { colorscheme = { "habamax" } },
+	-- automatically check for plugin updates
+	checker = { enabled = true },
+})
+
+-- require("packer").startup(function(use)
+-- 	use("wbthomason/packer.nvim")
+-- 	use("rebelot/kanagawa.nvim")
+-- 	use("williamboman/mason.nvim")
+-- 	use("williamboman/mason-lspconfig.nvim")
+-- 	use("neovim/nvim-lspconfig")
+-- 	use("nvim-lua/plenary.nvim")
+-- 	use({
+-- 		"nvim-treesitter/nvim-treesitter",
+-- 		run = function()
+-- 			local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
+-- 			ts_update()
+-- 		end,
+-- 	})
+-- 	use({
+-- 		"nvim-telescope/telescope.nvim",
+-- 		tag = "0.1.x",
+-- 		requires = { { "nvim-lua/plenary.nvim" } },
+-- 	})
+-- 	use("hrsh7th/cmp-nvim-lsp")
+-- 	use("hrsh7th/cmp-buffer")
+-- 	use("hrsh7th/cmp-path")
+-- 	use("hrsh7th/cmp-cmdline")
+-- 	use("hrsh7th/nvim-cmp")
+--
+-- 	use({
+-- 		"stevearc/conform.nvim",
+-- 		config = function()
+-- 			require("conform").setup({})
+-- 		end,
+-- 	})
+--
+-- end)
+
+-- vim.cmd("colorscheme kanagawa")
 
 vim.wo.foldenable = false
 -- Set <space> as the leader key
@@ -46,7 +122,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- python path
-vim.g.python3_host_prog = "C:\\Python312\\python.exe"
+vim.g.python3_host_prog = "C:/Users/peterkim/AppData/Local/Programs/Python/Python313/python.exe"
 
 -- keybind for saving
 vim.keymap.set("n", "<leader>s", ":w<CR>")
@@ -169,22 +245,23 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- vim.opt.foldmethod     = 'expr'
 -- vim.opt.foldexpr       = 'nvim_treesitter#foldexpr()'
 ---WORKAROUND
-vim.api.nvim_create_autocmd({ "BufEnter", "BufAdd", "BufNew", "BufNewFile", "BufWinEnter" }, {
-	group = vim.api.nvim_create_augroup("TS_FOLD_WORKAROUND", {}),
-	callback = function()
-		vim.opt.foldmethod = "expr"
-		vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-	end,
-})
+-- vim.api.nvim_create_autocmd({ "BufEnter", "BufAdd", "BufNew", "BufNewFile", "BufWinEnter" }, {
+-- 	group = vim.api.nvim_create_augroup("TS_FOLD_WORKAROUND", {}),
+-- 	callback = function()
+-- 		vim.opt.foldmethod = "expr"
+-- 		vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+-- 	end,
+-- })
 ---ENDWORKAROUND
 
 require("conform").setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
 		python = { "black" },
+		go = { "gofmt" },
 	},
 	format_on_save = {
-		timeout_ms = 500,
+		timeout_ms = 150,
 		lsp_format = "fallback",
 	},
 })
@@ -218,7 +295,7 @@ cmp.setup({
 		["<C-f>"] = cmp.mapping.scroll_docs(4),
 		["<C-Space>"] = cmp.mapping.complete(),
 		["<C-e>"] = cmp.mapping.abort(),
-		["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+		["<CR>"] = cmp.mapping.confirm({ select = false }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
 	}),
 	sources = cmp.config.sources({
 		{ name = "nvim_lsp" },
@@ -226,8 +303,8 @@ cmp.setup({
 		-- { name = 'luasnip' }, -- For luasnip users.
 		-- { name = 'ultisnips' }, -- For ultisnips users.
 		-- { name = 'snippy' }, -- For snippy users.
-	}, {
 		{ name = "buffer" },
+		{ name = "path" },
 	}),
 })
 cmp.setup.cmdline({ "/", "?" }, {
@@ -275,7 +352,14 @@ require("lspconfig").pylsp.setup({
 		},
 	},
 })
-require("nvim-treesitter.install").compilers = { "clang" }
+require("lspconfig").html.setup({
+	capabilities = capabilities,
+})
+require("lspconfig").gopls.setup({
+	capabilities = capabilities,
+})
+
+-- require("nvim-treesitter.install").compilers = { "clang" }
 
 local builtin = require("telescope.builtin")
 vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
@@ -288,40 +372,6 @@ vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iag
 vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
-
-local harpoon = require("harpoon")
-
--- REQUIRED
-harpoon:setup()
--- REQUIRED
-
-vim.keymap.set("n", "<leader>a", function()
-	harpoon:list():add()
-end)
-vim.keymap.set("n", "<C-e>", function()
-	harpoon.ui:toggle_quick_menu(harpoon:list())
-end)
-
-vim.keymap.set("n", "<C-h>", function()
-	harpoon:list():select(1)
-end)
-vim.keymap.set("n", "<C-t>", function()
-	harpoon:list():select(2)
-end)
-vim.keymap.set("n", "<C-n>", function()
-	harpoon:list():select(3)
-end)
-vim.keymap.set("n", "<C-s>", function()
-	harpoon:list():select(4)
-end)
-
--- Toggle previous & next buffers stored within Harpoon list
-vim.keymap.set("n", "<C-S-P>", function()
-	harpoon:list():prev()
-end)
-vim.keymap.set("n", "<C-S-N>", function()
-	harpoon:list():next()
-end)
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
