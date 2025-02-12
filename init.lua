@@ -242,20 +242,21 @@ require("conform").setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
 		python = { "black" },
-		go = { "gofmt", "goimports" },
+		go = { "goimports", "golines", "gofmt" },
 	},
-	format_on_save = {
-		timeout_ms = 150,
+	format_after_save = {
+		timeout_ms = 500,
 		lsp_format = "fallback",
+		async = true,
 	},
 })
 
-vim.api.nvim_create_autocmd("BufWritePre", {
-	pattern = "*",
-	callback = function(args)
-		require("conform").format({ bufnr = args.buf })
-	end,
-})
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+-- 	pattern = "*",
+-- 	callback = function(args)
+-- 		require("conform").format({ bufnr = args.buf })
+-- 	end,
+-- })
 
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 local cmp = require("cmp")
@@ -288,7 +289,7 @@ cmp.setup({
 		-- { name = 'luasnip' }, -- For luasnip users.
 		-- { name = 'ultisnips' }, -- For ultisnips users.
 		-- { name = 'snippy' }, -- For snippy users.
-		{ name = "buffer" },
+		-- { name = "buffer" },
 		{ name = "path" },
 	}),
 })
@@ -313,6 +314,9 @@ cmp.setup.cmdline(":", {
 
 -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
 -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local util = require("lspconfig/util")
+
 require("mason").setup()
 require("mason-lspconfig").setup({
 	ensure_installed = { "gopls", "lua_ls", "pylsp" },
@@ -338,7 +342,13 @@ require("lspconfig").pylsp.setup({
 		},
 	},
 })
-require("lspconfig").gopls.setup({})
+require("lspconfig").gopls.setup({
+	on_attach = on_attach,
+	capabilities = capabilities,
+	cmd = { "gopls" },
+	filetype = { "go", "gomod", "gowork", "gotmpl" },
+	root_dir = util.root_pattern("go.work", "go.mod"),
+})
 
 local builtin = require("telescope.builtin")
 vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
