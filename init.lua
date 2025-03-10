@@ -31,14 +31,13 @@ require("lazy").setup({
 
 				configs.setup({
 					ensure_installed = {
-						"c",
 						"lua",
 						"vim",
-						"vimdoc",
 						"go",
 						"python",
 					},
 					sync_install = false,
+					auto_install = true,
 					highlight = { enable = true },
 					indent = { enable = true },
 				})
@@ -241,7 +240,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufAdd", "BufNew", "BufNewFile", "Buf
 require("conform").setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
-		python = { "black" },
+		python = { "ruff" },
 		go = { "goimports", "golines", "gofmt" },
 	},
 	format_after_save = {
@@ -330,18 +329,19 @@ require("lspconfig").lua_ls.setup({
 		},
 	},
 })
-require("lspconfig").pylsp.setup({
-	settings = {
-		pylsp = {
-			plugins = {
-				pycodestyle = {
-					ignore = { "E501", "W503" },
-					maxLineLength = 100,
-				},
-			},
-		},
-	},
-})
+-- require("lspconfig").pylsp.setup({
+-- 	settings = {
+-- 		pylsp = {
+-- 			plugins = {
+-- 				pycodestyle = {
+-- 					ignore = { "E501", "W503" },
+-- 					maxLineLength = 100,
+-- 				},
+-- 			},
+-- 		},
+-- 	},
+-- })
+require("lspconfig").ruff.setup({})
 require("lspconfig").gopls.setup({
 	on_attach = on_attach,
 	capabilities = capabilities,
