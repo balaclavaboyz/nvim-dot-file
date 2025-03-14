@@ -691,6 +691,26 @@ require('lazy').setup({
         -- ts_ls = {},
         --
 
+        ruff = {
+          capabilities = capabilities,
+          settings = {
+            lint = {
+              ignore = { 'E501' },
+            },
+          },
+        },
+        pylsp = {
+          settings = {
+            pylsp = {
+              plugins = {
+                pyflakes = { enabled = false },
+                pycodestyle = { enabled = false },
+                pylint = { enabled = false },
+                mccabe = { enabled = false },
+              },
+            },
+          },
+        },
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
