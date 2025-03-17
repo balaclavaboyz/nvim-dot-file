@@ -696,31 +696,32 @@ require('lazy').setup({
         gopls = {
           capabilities = capabilities,
         },
-        ruff = {
-          capabilities = capabilities,
-          settings = {
-            lint = {
-              ignore = { 'E501' },
-            },
-          },
-        },
-        pylsp = {
-          capabilities = capabilities,
-          settings = {
-            pylsp = {
-              plugins = {
-                pyflakes = { enabled = false },
-                pycodestyle = { enabled = false },
-                autopep8 = { enabled = false },
-                yapf = { enabled = false },
-                mccabe = { enabled = false },
-                pylsp_mypy = { enabled = false },
-                pylsp_black = { enabled = false },
-                pylsp_isort = { enabled = false },
-              },
-            },
-          },
-        },
+        -- ruff = {
+        --   capabilities = capabilities,
+        --   settings = {
+        --     lint = {
+        --       ignore = { 'E501' },
+        --     },
+        --   },
+        -- },
+        basedpyright = { capabilities = capabilities },
+        -- pylsp = {
+        --   capabilities = capabilities,
+        --   settings = {
+        --     pylsp = {
+        --       plugins = {
+        --         pyflakes = { enabled = false },
+        --         pycodestyle = { enabled = false },
+        --         autopep8 = { enabled = false },
+        --         yapf = { enabled = false },
+        --         mccabe = { enabled = false },
+        --         pylsp_mypy = { enabled = false },
+        --         pylsp_black = { enabled = false },
+        --         pylsp_isort = { enabled = false },
+        --       },
+        --     },
+        --   },
+        -- },
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -808,7 +809,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { 'ruff' },
+        python = { 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
