@@ -1151,7 +1151,17 @@ vim.keymap.set('n', '<leader>du', function()
   require('dapui').toggle()
 end, { desc = 'Toggle DAP UI' })
 local Terminal = require('toggleterm.terminal').Terminal
-local lazygit = Terminal:new { cmd = 'lazygit', hidden = true }
+local lazygit = Terminal:new {
+  cmd = 'lazygit',
+  hidden = true,
+  direction = 'float',
+  on_open = function(term)
+    vim.cmd 'startinsert!'
+  end,
+  on_close = function(term)
+    vim.cmd 'stopinsert!'
+  end,
+}
 
 function Lazygit_toggle()
   lazygit:toggle()
